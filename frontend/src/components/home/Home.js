@@ -4,6 +4,9 @@ import AddPostPopup from "../add-post-popup/AddPostPopup";
 import CommentPopup from "../comment-popup/CommentPopup";
 
 function Home() {
+  
+  const POST_API = process.env.REACT_APP_POST_API;
+const COMMENT_API = process.env.REACT_APP_COMMENT_API;
   const [showAddPost, setShowAddPost] = useState(false);
   const [showCommentPopup, setShowCommentPopup] = useState(null);
   const [sortOrder, setSortOrder] = useState("desc");
@@ -12,14 +15,14 @@ function Home() {
 
   // Fetch posts on load
   useEffect(() => {
-    fetch("http://localhost:5001/api/post") // later replace with ALB DNS
+    fetch(`${POST_API}/api/post`) // later replace with ALB DNS
       .then((res) => res.json())
       .then((data) => {
         setPosts(data);
 
         // fetch comment counts for each post
         data.forEach((post) => {
-          fetch(`http://localhost:5002/api/comment/count/${post._id}`)
+          fetch(`${COMMENT_API}/api/comment/count/${post._id}`)
             .then((res) => res.json())
             .then((countData) => {
               setCommentCounts((prev) => ({

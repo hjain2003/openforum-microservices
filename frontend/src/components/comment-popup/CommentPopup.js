@@ -5,10 +5,11 @@ function CommentPopup({ postId, onClose }) {
   const [name, setName] = useState("");
   const [text, setText] = useState("");
   const [comments, setComments] = useState([]);
+const COMMENT_API = process.env.REACT_APP_COMMENT_API;
 
   // Fetch comments for this post
   useEffect(() => {
-    fetch(`http://localhost:5002/api/comment/${postId}`) // comment-service
+    fetch(`${COMMENT_API}/api/comment/${postId}`) // comment-service
       .then((res) => res.json())
       .then((data) => setComments(data))
       .catch((err) => console.error("Error fetching comments:", err));
@@ -18,7 +19,7 @@ function CommentPopup({ postId, onClose }) {
     if (!text.trim()) return;
 
     try {
-      const res = await fetch("http://localhost:5002/api/comment", {
+      const res = await fetch(`${COMMENT_API}/api/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

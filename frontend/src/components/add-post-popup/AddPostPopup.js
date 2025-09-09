@@ -6,6 +6,7 @@ function AddPostPopup({ onClose, onPostCreated }) {
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
+  const POST_API = process.env.REACT_APP_POST_API;
 
   const handleSubmit = async () => {
     if (!title || !author || !content) {
@@ -15,7 +16,7 @@ function AddPostPopup({ onClose, onPostCreated }) {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5001/api/post", {
+      const res = await fetch(`${POST_API}/api/post`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, author, content }),
