@@ -32,7 +32,7 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            when { changeset "frontend/**" }
+            when { changeset "post-service/**" }
             steps {
                 script {
                     sh '''
@@ -46,7 +46,7 @@ pipeline {
         }
 
         stage('Register New Task Definition') {
-            when { changeset "frontend/**" }
+            when { changeset "post-service/**" }
             steps {
                 script {
                     sh '''
