@@ -36,7 +36,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        cd frontend
+                        cd post-service
                         aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
                         docker build -t $IMAGE_URI .
                         docker push $IMAGE_URI
@@ -73,10 +73,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Frontend deployed successfully!"
+            echo "✅ Post-service deployed successfully!"
         }
         failure {
-            echo "❌ Frontend pipeline failed!"
+            echo "❌ Post-service pipeline failed!"
         }
     }
 }
