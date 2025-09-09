@@ -46,7 +46,7 @@ const COMMENT_API = process.env.REACT_APP_COMMENT_API;
 
   return (
     <div className="home-container">
-      <nav className="navbar">🚀 OpenForum 1.0</nav>
+      <nav className="navbar">🚀 OpenForum 1.1</nav>
       <div className="actions">
         <button onClick={() => setShowAddPost(true)}>+ Add Post</button>
         <button
