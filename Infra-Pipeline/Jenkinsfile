@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    environment {
+        TF_DIR = "Infra-Pipeline"
+    }
+
+    stages {
+        stage('Terraform Init') {
+            steps {
+                dir("${TF_DIR}") {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir("${TF_DIR}") {
+                    sh 'terraform plan -out=tfplan'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir("${TF_DIR}") {
+                    input message: "Approve Terraform Apply?", ok: "Apply"
+                    sh 'terraform apply tfplan'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Terraform infra deployed successfully!"
+        }
+        failure {
+            echo "Terraform deployment failed!"
+        }
+    }
+}
