@@ -8,10 +8,12 @@ pipeline {
         ECS_SERVICE = "ecs-frontend-service"
         TASK_DEFINITION_FAMILY = "frontend-task"
         AWS_ACCOUNT_ID = "302263069749"
+        IMAGE_TAG = "latest"
+        IMAGE_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
     }
 
     triggers {
-        // optional: only trigger if changes in frontend/
+        // Optional: only trigger if changes in frontend/
         pollSCM('* * * * *') // check every minute
     }
 
@@ -33,15 +35,12 @@ pipeline {
             when { changeset "frontend/**" }
             steps {
                 script {
-                    IMAGE_TAG = "latest"
-                    IMAGE_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
-
-                    sh """
-                      cd frontend
-                      aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-                      docker build -t ${IMAGE_URI} .
-                      docker push ${IMAGE_URI}
-                    """
+                    sh '''
+                        cd frontend
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                        docker build -t $IMAGE_URI .
+                        docker push $IMAGE_URI
+                    '''
                 }
             }
         }
@@ -50,24 +49,23 @@ pipeline {
             when { changeset "frontend/**" }
             steps {
                 script {
-                    sh """
-                      # fetch current task def JSON
-                      aws ecs describe-task-definition --task-definition ${TASK_DEFINITION_FAMILY} --region ${AWS_REGION} \
-                        --query "taskDefinition" > /tmp/td.json
+                    sh '''
+                        # Fetch current task def JSON
+                        aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --region $AWS_REGION \
+                            --query "taskDefinition" > /tmp/td.json
 
-                      # clean up unwanted fields
-                      cat /tmp/td.json | jq 'del(.taskDefinitionArn,.revision,.status,.requiresAttributes,.compatibilities,.registeredAt,.registeredBy)' > /tmp/new-td.json
+                        # Clean up unwanted fields
+                        cat /tmp/td.json | jq 'del(.taskDefinitionArn,.revision,.status,.requiresAttributes,.compatibilities,.registeredAt,.registeredBy)' > /tmp/new-td.json
 
-                      # update container image
-                      jq --arg IMAGE_URI "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:latest" \
-                        '.containerDefinitions[0].image = $IMAGE_URI' /tmp/new-td.json > /tmp/final-td.json
+                        # Update container image
+                        jq --arg IMAGE_URI "$IMAGE_URI" '.containerDefinitions[0].image = $IMAGE_URI' /tmp/new-td.json > /tmp/final-td.json
 
-                      # register new task def revision
-                      NEW_TD_ARN=$(aws ecs register-task-definition --cli-input-json file:///tmp/final-td.json --region ${AWS_REGION} --query "taskDefinition.taskDefinitionArn" --output text)
+                        # Register new task def revision
+                        NEW_TD_ARN=$(aws ecs register-task-definition --cli-input-json file:///tmp/final-td.json --region $AWS_REGION --query "taskDefinition.taskDefinitionArn" --output text)
 
-                      # update service to new revision
-                      aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition $NEW_TD_ARN --region ${AWS_REGION}
-                    """
+                        # Update ECS service to new revision
+                        aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $NEW_TD_ARN --region $AWS_REGION
+                    '''
                 }
             }
         }
