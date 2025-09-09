@@ -61,7 +61,7 @@ resource "aws_lb_target_group" "post_service_tg" {
   vpc_id      = var.vpc_id
 
   health_check {
-    path                = "/api/post/health"
+    path                = "/"
     interval            = 30
     timeout             = 5
     healthy_threshold   = 2
@@ -78,7 +78,7 @@ resource "aws_lb_target_group" "comment_service_tg" {
   vpc_id      = var.vpc_id
 
   health_check {
-    path                = "/api/comment/health"
+    path                = "/"
     interval            = 30
     timeout             = 5
     healthy_threshold   = 2
@@ -111,7 +111,7 @@ resource "aws_lb_listener_rule" "post_rule" {
 
   condition {
     path_pattern {
-      values = ["/api/post/*"]
+      values = ["/api/post*"]
     }
   }
 }
@@ -127,7 +127,7 @@ resource "aws_lb_listener_rule" "comment_rule" {
 
   condition {
     path_pattern {
-      values = ["/api/comment/*"]
+      values = ["/api/comment*"]
     }
   }
 }
