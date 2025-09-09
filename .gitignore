@@ -143,6 +143,7 @@ vite.config.ts.timestamp-*
 # Node modules
 frontend/node_modules/
 post-service/node_modules/
+comment=service/node_modules/
 
 # Terraform
 infra/.terraform/

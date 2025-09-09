@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Home.css";
 import AddPostPopup from "../add-post-popup/AddPostPopup";
 import CommentPopup from "../comment-popup/CommentPopup";
@@ -7,34 +7,20 @@ function Home() {
   const [showAddPost, setShowAddPost] = useState(false);
   const [showCommentPopup, setShowCommentPopup] = useState(null);
   const [sortOrder, setSortOrder] = useState("desc");
+  const [posts, setPosts] = useState([]);
 
-  // Dummy posts
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      title: "First Post on OpenForum",
-      author: "Alice",
-      content: "This is the very first post!",
-      date: new Date("2023-09-01"),
-      comments: [
-        { id: 1, name: "Bob", text: "Nice start!" },
-        { id: 2, name: "Charlie", text: "Excited for this platform." },
-      ],
-    },
-    {
-      id: 2,
-      title: "Another Post",
-      author: "Dave",
-      content: "Loving the UI vibes.",
-      date: new Date("2023-09-02"),
-      comments: [],
-    },
-  ]);
+  // Fetch posts on load
+  useEffect(() => {
+    fetch("http://localhost:5001/api/post") // later replace with ALB DNS
+      .then((res) => res.json())
+      .then((data) => setPosts(data))
+      .catch((err) => console.error("Error fetching posts:", err));
+  }, []);
 
   const sortedPosts = [...posts].sort((a, b) => {
     return sortOrder === "desc"
-      ? b.date - a.date
-      : a.date - b.date;
+      ? new Date(b.createdAt) - new Date(a.createdAt)
+      : new Date(a.createdAt) - new Date(b.createdAt);
   });
 
   return (
@@ -53,18 +39,18 @@ function Home() {
 
       <div className="posts">
         {sortedPosts.map((post) => (
-          <div key={post.id} className="post-card">
+          <div key={post._id} className="post-card">
             <h3>{post.title}</h3>
             <p className="author">by {post.author}</p>
             <p>{post.content}</p>
-            <br/>
-            <button onClick={() => setShowCommentPopup(post.id)}>
-              View/Add Comments ({post.comments.length})
+            <br />
+            <button onClick={() => setShowCommentPopup(post._id)}>
+              View/Add Comments ({post.comments?.length || 0})
             </button>
-            {showCommentPopup === post.id && (
+            {showCommentPopup === post._id && (
               <div className="comments">
-                {post.comments.map((c) => (
-                  <p key={c.id} className="comment">
+                {post.comments?.map((c, idx) => (
+                  <p key={idx} className="comment">
                     <strong>{c.name}:</strong> {c.text}
                   </p>
                 ))}
@@ -75,12 +61,15 @@ function Home() {
       </div>
 
       {showAddPost && (
-        <AddPostPopup onClose={() => setShowAddPost(false)} />
+        <AddPostPopup
+          onClose={() => setShowAddPost(false)}
+          onPostCreated={(newPost) =>
+            setPosts((prev) => [newPost, ...prev])
+          }
+        />
       )}
       {showCommentPopup && (
-        <CommentPopup
-          onClose={() => setShowCommentPopup(null)}
-        />
+        <CommentPopup onClose={() => setShowCommentPopup(null)} />
       )}
     </div>
   );
