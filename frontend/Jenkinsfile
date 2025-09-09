@@ -26,7 +26,7 @@ pipeline {
             steps {
                 checkout([$class: 'GitSCM',
                           branches: [[name: '*/main']],
-                          userRemoteConfigs: [[url: 'git@github.com:hjain2003/openforum-microservices.git']]]
+                          userRemoteConfigs: [[url: 'https://github.com:hjain2003/openforum-microservices.git']]]
                 )
             }
         }
