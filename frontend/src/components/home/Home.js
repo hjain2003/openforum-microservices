@@ -8,12 +8,30 @@ function Home() {
   const [showCommentPopup, setShowCommentPopup] = useState(null);
   const [sortOrder, setSortOrder] = useState("desc");
   const [posts, setPosts] = useState([]);
+  const [commentCounts, setCommentCounts] = useState({});
 
   // Fetch posts on load
   useEffect(() => {
     fetch("http://localhost:5001/api/post") // later replace with ALB DNS
       .then((res) => res.json())
-      .then((data) => setPosts(data))
+      .then((data) => {
+        setPosts(data);
+
+        // fetch comment counts for each post
+        data.forEach((post) => {
+          fetch(`http://localhost:5002/api/comment/count/${post._id}`)
+            .then((res) => res.json())
+            .then((countData) => {
+              setCommentCounts((prev) => ({
+                ...prev,
+                [post._id]: countData.count,
+              }));
+            })
+            .catch((err) =>
+              console.error("Error fetching comment count:", err)
+            );
+        });
+      })
       .catch((err) => console.error("Error fetching posts:", err));
   }, []);
 
@@ -45,17 +63,8 @@ function Home() {
             <p>{post.content}</p>
             <br />
             <button onClick={() => setShowCommentPopup(post._id)}>
-              View/Add Comments ({post.comments?.length || 0})
+              View/Add Comments ({commentCounts[post._id] || 0})
             </button>
-            {showCommentPopup === post._id && (
-              <div className="comments">
-                {post.comments?.map((c, idx) => (
-                  <p key={idx} className="comment">
-                    <strong>{c.name}:</strong> {c.text}
-                  </p>
-                ))}
-              </div>
-            )}
           </div>
         ))}
       </div>
@@ -69,7 +78,10 @@ function Home() {
         />
       )}
       {showCommentPopup && (
-        <CommentPopup onClose={() => setShowCommentPopup(null)} />
+        <CommentPopup
+          postId={showCommentPopup}
+          onClose={() => setShowCommentPopup(null)}
+        />
       )}
     </div>
   );

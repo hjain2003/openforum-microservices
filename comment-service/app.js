@@ -14,7 +14,7 @@ app.use(express.json());
 connectDB();
 
 // Routes
-app.use("/api/comments", commentRoutes);
+app.use("/api/comment", commentRoutes);
 
 app.get("/", (req, res) => {
   res.send("Comment Service is running...");

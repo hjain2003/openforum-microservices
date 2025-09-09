@@ -1,20 +1,13 @@
 import Comment from "../models/Comment.js";
 
-// Add new comment
-export const addComment = async (req, res) => {
+export const createComment = async (req, res) => {
   try {
-    const { postId, text } = req.body;
-
-    if (!postId || !text) {
-      return res.status(400).json({ error: "postId and text are required" });
-    }
-
-    const newComment = new Comment({ postId, text });
-    await newComment.save();
-
-    res.status(201).json(newComment);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const { postId, text, name } = req.body;
+    const comment = new Comment({ postId, text, name });
+    await comment.save();
+    res.status(201).json(comment);
+  } catch (err) {
+    res.status(500).json({ message: "Error creating comment", error: err });
   }
 };
 
@@ -22,10 +15,19 @@ export const addComment = async (req, res) => {
 export const getCommentsByPost = async (req, res) => {
   try {
     const { postId } = req.params;
-    const comments = await Comment.find({ postId });
-
+    const comments = await Comment.find({ postId }).sort({ createdAt: -1 });
     res.json(comments);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching comments", error: err });
+  }
+};
+
+export const getCommentCount = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const count = await Comment.countDocuments({ postId });
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch comment count" });
   }
 };

@@ -4,16 +4,13 @@ const commentSchema = new mongoose.Schema(
   {
     postId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Post", // reference to Post collection
+      ref: "Post",
       required: true,
     },
-    text: {
-      type: String,
-      required: true,
-    },
+    name: { type: String, default: "Anonymous" },
+    text: { type: String, required: true },
   },
   { timestamps: true }
 );
 
-const Comment = mongoose.model("Comment", commentSchema);
-export default Comment;
+export default mongoose.model("Comment", commentSchema);
