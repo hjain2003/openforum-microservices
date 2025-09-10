@@ -246,13 +246,6 @@ Each service includes health check endpoints:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Team
-
-- Infrastructure Engineer: AWS ECS, ALB, Terraform
-- Backend Developer: Node.js microservices
-- Frontend Developer: React application
-- DevOps Engineer: CI/CD pipelines, Docker
-
 ---
 
 **Note**: This is a demonstration project showcasing microservices architecture, containerization, and cloud deployment practices. The application runs without authentication for simplicity.
