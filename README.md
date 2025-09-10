@@ -12,6 +12,9 @@ This project implements a microservices architecture with the following componen
 - **Infrastructure**: AWS ECS cluster with ALB for load balancing and routing
 - **CI/CD**: Jenkins pipelines for automated deployment
 
+![Architecture Diagram](https://raw.githubusercontent.com/hjain2003/openforum-microservices/main/images/alb-path-routing.png)
+
+
 ## 📁 Project Structure
 
 ```
