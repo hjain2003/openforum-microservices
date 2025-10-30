@@ -87,7 +87,7 @@ This project implements a microservices architecture with the following componen
 - **AWS S3** & **AWS DynamoDB**: Terraform state storage and locking
 - **AWS ECR**: Container registry
 - **Docker**: Containerization
-- **Terraform**: Infrastructure as Code
+- **Terraform**: Infrastructure as Code (IaC)
 - **Jenkins**: CI/CD pipelines
 
 ## 🔧 Local Development
